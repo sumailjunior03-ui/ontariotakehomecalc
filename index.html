@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ontario Take Home Calc | ontariotakehomecalc.ca</title>
+  <meta name="description" content="Calculate your Ontario take-home pay for 2026. Estimates federal tax, Ontario provincial tax, CPP, EI, and Ontario Health Premium based on current 2026 rates.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://ontariotakehomecalc.ca/">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Ontario Take Home Calc",
+    "url": "https://ontariotakehomecalc.ca/",
+    "description": "A free browser-based tool to estimate Ontario take-home pay after federal tax, Ontario provincial tax, CPP, EI, and the Ontario Health Premium.",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "All",
+    "browserRequirements": "Requires JavaScript",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "CAD"
+    }
+  }
+  </script>
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7744853829365165" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="container">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <span class="logo-icon">🍁</span>
+        Ontario Take Home Calc
+        <span class="year-badge">2026</span>
+      </a>
+      <nav class="header-nav">
+        <a href="about.html">About</a>
+        <a href="faq.html">FAQ</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="content-width">
+      <h1>Ontario Take Home Calc</h1>
+      <p>Estimate your 2026 net pay after federal tax, Ontario provincial tax, CPP, EI, and the Ontario Health Premium. Fully browser-based. No data stored.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CALCULATOR -->
+<div class="container">
+  <div class="content-width">
+    <div class="calc-card" id="calculator">
+
+      <!-- INPUTS -->
+      <div class="calc-form-section">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label for="grossIncome">Annual Gross Income</label>
+            <div class="input-prefix-wrap">
+              <span class="input-prefix">$</span>
+              <input type="number" id="grossIncome" min="0" max="2000000" step="1000" value="75000" placeholder="e.g. 75000">
+            </div>
+          </div>
+          <div class="form-group full">
+            <label for="payFrequency">Pay Frequency</label>
+            <select id="payFrequency">
+              <option value="weekly">Weekly (52 pays/year)</option>
+              <option value="biweekly" selected>Bi-Weekly (26 pays/year)</option>
+              <option value="semimonthly">Semi-Monthly (24 pays/year)</option>
+              <option value="monthly">Monthly (12 pays/year)</option>
+              <option value="annually">Annually (1 pay/year)</option>
+            </select>
+          </div>
+        </div>
+        <button class="calc-btn" id="calcBtn" onclick="runCalculator()">Calculate Take-Home Pay</button>
+      </div>
+
+      <!-- RESULTS -->
+      <div class="calc-results-section" id="resultsSection">
+        <div class="results-placeholder" id="resultsPlaceholder">
+          <div style="font-size:2rem">📊</div>
+          <p>Enter your gross income and click <strong>Calculate</strong> to see your take-home pay breakdown.</p>
+        </div>
+        <div id="resultsOutput" style="display:none">
+
+          <div class="results-header">
+            <div class="takehome-display">
+              <div class="takehome-label">Estimated Take-Home Pay</div>
+              <div class="takehome-amount" id="r-annualTakeHome">—</div>
+              <div class="takehome-period" id="r-annualLabel">Annual</div>
+            </div>
+            <div class="effective-rate-chip" id="r-effectiveRate">—% effective rate</div>
+          </div>
+
+          <!-- Period comparison -->
+          <div class="period-grid" id="r-periodGrid">
+            <!-- populated by JS -->
+          </div>
+
+          <!-- Breakdown table -->
+          <div class="results-breakdown" style="margin-top:24px">
+            <div class="breakdown-row section-header">Income &amp; Deductions — Tax Year 2026</div>
+            <div class="breakdown-row">
+              <span class="breakdown-label">Gross Annual Income</span>
+              <span class="breakdown-value" id="r-gross">—</span>
+            </div>
+            <div class="breakdown-row section-header">Federal</div>
+            <div class="breakdown-row">
+              <span class="breakdown-label">Federal Income Tax<br><span class="breakdown-sub">2026 brackets (14%–33%)</span></span>
+              <span class="breakdown-value deduction-amount" id="r-federalTax">—</span>
+            </div>
+            <div class="breakdown-row section-header">Provincial</div>
+            <div class="breakdown-row">
+              <span class="breakdown-label">Ontario Provincial Tax<br><span class="breakdown-sub">2026 brackets (5.05%–13.16%) + surtax</span></span>
+              <span class="breakdown-value deduction-amount" id="r-ontarioTax">—</span>
+            </div>
+            <div class="breakdown-row">
+              <span class="breakdown-label">Ontario Health Premium<br><span class="breakdown-sub">Based on taxable income</span></span>
+              <span class="breakdown-value deduction-amount" id="r-ohp">—</span>
+            </div>
+            <div class="breakdown-row section-header">Payroll Deductions</div>
+            <div class="breakdown-row">
+              <span class="breakdown-label">CPP1 Contribution<br><span class="breakdown-sub">5.95% on earnings $3,500–$74,600</span></span>
+              <span class="breakdown-value deduction-amount" id="r-cpp1">—</span>
+            </div>
+            <div class="breakdown-row" id="r-cpp2row">
+              <span class="breakdown-label">CPP2 Contribution<br><span class="breakdown-sub">4.00% on earnings $74,600–$85,000</span></span>
+              <span class="breakdown-value deduction-amount" id="r-cpp2">—</span>
+            </div>
+            <div class="breakdown-row">
+              <span class="breakdown-label">Employment Insurance (EI)<br><span class="breakdown-sub">$1.63 per $100, max $68,900 insurable</span></span>
+              <span class="breakdown-value deduction-amount" id="r-ei">—</span>
+            </div>
+            <div class="breakdown-row total">
+              <span class="breakdown-label">Total Deductions</span>
+              <span class="breakdown-value deduction-amount" id="r-totalDeductions">—</span>
+            </div>
+            <div class="breakdown-row" style="background:var(--accent-light);">
+              <span class="breakdown-label" style="font-weight:700;color:var(--accent)">Estimated Annual Take-Home</span>
+              <span class="breakdown-value" style="font-weight:700;color:var(--accent);font-size:1.05rem" id="r-takeHomeBottom">—</span>
+            </div>
+          </div>
+
+          <div class="disclaimer-note">
+            ⚠️ <strong>Estimate only.</strong> This calculator uses 2026 federal and Ontario rates with the basic personal amount applied. It does not account for RRSP deductions, other tax credits, additional income sources, or employer-specific arrangements. For precise payroll calculations, consult a payroll professional or use CRA's Payroll Deductions Online Calculator.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ad unit -->
+    <div class="ad-unit">
+      <ins class="adsbygoogle" style="display:block;width:728px;height:90px;" data-ad-client="ca-pub-7744853829365165" data-ad-slot="auto" data-ad-format="horizontal"></ins>
+    </div>
+
+  </div><!-- end content-width -->
+</div><!-- end container -->
+
+
+<!-- AUTHORITY CONTENT -->
+<div class="container page-content">
+  <div class="content-width">
+
+    <!-- WHEN THIS CALCULATOR IS USEFUL -->
+    <section class="section">
+      <div class="section-label">Use Cases</div>
+      <h2>When This Calculator Is Useful</h2>
+      <div class="info-box">
+        <p>This calculator gives Ontario employees a fast, current estimate of how much of their gross pay they actually keep after all standard deductions. It's useful in these situations:</p>
+        <ul style="padding-left:20px;margin-top:10px;color:var(--text-secondary);font-size:0.93rem;line-height:1.9">
+          <li>Evaluating a job offer and comparing net pay across salaries</li>
+          <li>Planning a household budget based on what actually lands in your account</li>
+          <li>Understanding how a raise or promotion changes your take-home pay</li>
+          <li>Comparing the financial difference between pay frequencies</li>
+          <li>Estimating how much of a bonus you will keep</li>
+          <li>Understanding what tax components are reducing your pay</li>
+          <li>General payroll education and financial planning</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- WHAT THIS CALCULATOR DOES -->
+    <section class="section">
+      <div class="section-label">Overview</div>
+      <h2>What This Calculator Does</h2>
+      <p>This calculator estimates your annual take-home pay as an Ontario employee by applying the 2026 federal and provincial tax rules to your gross income. It calculates five separate deductions — federal income tax, Ontario provincial income tax, the Ontario Health Premium, CPP contributions, and EI premiums — and subtracts them from your gross salary to show your estimated net pay.</p>
+      <p>All deductions are calculated using the 2026 rates published by the Canada Revenue Agency and Employment and Social Development Canada. The basic personal amount (federal and Ontario) is applied automatically. No other credits or deductions are assumed.</p>
+      <p>Results are shown as annual totals, per pay period (based on your selected frequency), and as a monthly equivalent. The effective tax rate shown represents total deductions as a percentage of gross income.</p>
+    </section>
+
+    <!-- EXAMPLE CALCULATION -->
+    <section class="section">
+      <div class="section-label">Worked Example</div>
+      <h2>Example Calculation: $80,000 Annual Salary</h2>
+      <p>Here is a step-by-step example using an $80,000 annual gross income, bi-weekly pay frequency, and 2026 rates. All figures are drawn from the same central rate configuration used by the calculator.</p>
+
+      <table class="example-table" id="exampleTable">
+        <thead>
+          <tr><th>Component</th><th>Calculation</th><th>Amount</th></tr>
+        </thead>
+        <tbody id="exampleBody">
+          <!-- populated by JS from config -->
+        </tbody>
+      </table>
+      <p style="font-size:0.82rem;color:var(--text-muted)">Example uses 2026 rates and basic personal amounts only. Other credits not included.</p>
+    </section>
+
+    <!-- FORMULA -->
+    <section class="section">
+      <div class="section-label">Formula</div>
+      <h2>Take-Home Pay Formula</h2>
+      <div class="info-box green">
+        <p style="font-family:'IBM Plex Mono',monospace;font-size:0.9rem;line-height:2;color:var(--accent)">
+          Take-Home Pay<br>
+          = Gross Income<br>
+          − Federal Income Tax<br>
+          − Ontario Provincial Tax<br>
+          − Ontario Health Premium<br>
+          − CPP1 Contribution<br>
+          − CPP2 Contribution (if applicable)<br>
+          − EI Premiums
+        </p>
+      </div>
+      <p>Each deduction is calculated independently and then summed. The federal and Ontario tax calculations both apply their respective basic personal amounts as non-refundable credits before arriving at the final tax owing.</p>
+    </section>
+
+    <!-- METHODOLOGY -->
+    <section class="section">
+      <div class="section-label">Methodology</div>
+      <h2>Calculation Methodology</h2>
+
+      <h3>Federal Income Tax</h3>
+      <p>Federal tax is calculated using Canada's 2026 progressive bracket system. The bottom rate is 14% (reduced from 15% in 2024, and fully in effect for 2026). Tax applies to income within each bracket only. The federal Basic Personal Amount of $16,452 is applied as a non-refundable credit at 14%, reducing the tax owed by approximately $2,303.</p>
+
+      <h3>Ontario Provincial Income Tax</h3>
+      <p>Ontario tax is calculated using the 2026 provincial brackets (5.05% to 13.16%). Ontario's brackets are indexed annually to inflation (1.9% for 2026). A surtax is applied to basic Ontario tax above $5,818 (20%) and $7,444 (additional 36%). The Ontario Basic Personal Amount of $12,399 is applied as a non-refundable credit at 5.05%.</p>
+
+      <h3>Ontario Health Premium</h3>
+      <p>The Ontario Health Premium is a graduated annual charge based on taxable income. It ranges from $0 for incomes under $20,000 to $900 for incomes above $200,600. It is collected through the provincial tax system and remitted at tax filing.</p>
+
+      <h3>CPP Contributions</h3>
+      <p>CPP contributions are calculated in two tiers for 2026. The base CPP1 rate of 5.95% applies to earnings between the $3,500 basic exemption and the YMPE of $74,600 (maximum $4,230.45). The enhanced CPP2 rate of 4.00% applies to earnings between $74,600 and the YAMPE of $85,000 (maximum $416.00).</p>
+
+      <h3>Employment Insurance</h3>
+      <p>EI premiums are deducted at $1.63 per $100 of insurable earnings, on the first $68,900 of insurable income. The maximum annual premium is $1,123.07. Once this maximum is reached during the year, no further EI is deducted.</p>
+
+      <h3>Limitations</h3>
+      <p>This calculator applies basic personal amounts only. It does not include RRSP deductions, union dues, childcare, disability credits, age credits, tuition credits, or other deductions that may reduce taxable income. Actual payroll deductions may differ from this estimate depending on your TD1 claims and employer arrangements.</p>
+    </section>
+
+    <!-- Ad unit -->
+    <div class="ad-unit">
+      <ins class="adsbygoogle" style="display:block;width:336px;height:280px;" data-ad-client="ca-pub-7744853829365165" data-ad-slot="auto" data-ad-format="rectangle"></ins>
+    </div>
+
+    <!-- EXAMPLE SCENARIOS -->
+    <section class="section">
+      <div class="section-label">Example Scenarios</div>
+      <h2>Example Scenarios: Estimated Take-Home Pay Across Income Levels</h2>
+      <p>The following estimates use 2026 rates, basic personal amounts only, and assume a standard employee with no additional deductions or credits.</p>
+      <div class="scenarios-grid" id="scenariosGrid">
+        <!-- populated by JS -->
+      </div>
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-top:16px">All figures estimated. Effective rate = total deductions ÷ gross income.</p>
+    </section>
+
+    <!-- UNDERSTANDING -->
+    <section class="section">
+      <div class="section-label">Understanding Your Results</div>
+      <h2>What Reduces Your Take-Home Pay</h2>
+
+      <h3>Gross Pay vs. Take-Home Pay</h3>
+      <p>Gross pay is the amount you earn before any deductions. Take-home pay is what you actually receive after all mandatory deductions are subtracted. For most Ontario employees, the difference between gross and net is significant — often 20% to 35% of gross income, depending on how much you earn.</p>
+
+      <h3>Why Federal Tax Is Your Largest Deduction</h3>
+      <p>Canada's federal income tax is typically the biggest single deduction from your pay. In 2026, the bottom bracket rate is 14% and rises to 33% at the top. Because Canada uses a progressive system, only the income above each threshold is taxed at the higher rate — your effective rate is always lower than your marginal rate.</p>
+
+      <h3>Ontario Tax and the Surtax</h3>
+      <p>Ontario's provincial tax adds another layer on top of federal tax. For middle and higher incomes, Ontario's surtax — applied to your basic provincial tax rather than your income — can meaningfully increase the total provincial tax you pay. Earners with basic Ontario tax above $5,818 pay an extra 20%; above $7,444, an additional 36% surtax applies on top of that.</p>
+
+      <h3>CPP Is Savings, Not Just a Tax</h3>
+      <p>Unlike income taxes, CPP contributions build your future Canada Pension Plan retirement benefit. The more you contribute over your working life, the higher your CPP retirement pension will be. In 2026, you contribute 5.95% on earnings between $3,500 and $74,600, with an additional 4% on earnings up to $85,000 under the enhanced CPP2.</p>
+
+      <h3>EI Protects You If You Lose Work</h3>
+      <p>EI premiums fund the Employment Insurance program, which pays benefits if you lose your job through no fault of your own, or need to take parental, sickness, or compassionate care leave. In 2026, Ontario employees contribute $1.63 per $100 of insurable earnings, up to a maximum of $1,123.07.</p>
+
+      <h3>The Ontario Health Premium</h3>
+      <p>The Ontario Health Premium is collected through the provincial tax system and funds Ontario's health care. Unlike CPP and EI, there is no corresponding employer match. The premium is based on your taxable income and maxes out at $900 per year for incomes above $200,600.</p>
+    </section>
+
+    <!-- COMMON SCENARIOS -->
+    <section class="section">
+      <div class="section-label">Common Situations</div>
+      <h2>Common Scenarios and What to Expect</h2>
+
+      <div class="info-box" style="margin-bottom:16px">
+        <h3 style="margin-top:0">You Received a Job Offer at $70,000</h3>
+        <p>At $70,000 gross, your estimated annual deductions in Ontario are roughly $18,300–$19,500 depending on CPP and EI timing. Your estimated take-home is approximately $51,500–$52,700 annually, or about $1,980–$2,030 bi-weekly. This is a useful baseline when negotiating or comparing offers.</p>
+      </div>
+
+      <div class="info-box" style="margin-bottom:16px">
+        <h3 style="margin-top:0">You Got a Raise From $75,000 to $85,000</h3>
+        <p>The additional $10,000 of income is not all taxed at the same marginal rate. The portion up to $117,045 falls in the 20.5% federal bracket and 9.15% Ontario bracket. You also reach the CPP1 maximum near $74,600, so above that, CPP2 (4%) applies up to $85,000. Expect to keep roughly $6,000–$6,500 of the $10,000 increase after all deductions.</p>
+      </div>
+
+      <div class="info-box" style="margin-bottom:16px">
+        <h3 style="margin-top:0">You Are Comparing Weekly vs. Bi-Weekly Pay</h3>
+        <p>Pay frequency does not change your annual deductions — the total tax, CPP, and EI you pay over the year is the same regardless of how often you are paid. What changes is simply how that annual amount is divided across pay periods. A weekly pay of $X equals a bi-weekly pay of $2X for the same annual income.</p>
+      </div>
+
+      <div class="info-box">
+        <h3 style="margin-top:0">You Are Earning Over $74,600</h3>
+        <p>Once your income exceeds the CPP YMPE of $74,600, you begin paying CPP2 contributions at 4% on earnings up to $85,000. This is the enhanced Canada Pension Plan and represents additional savings toward your retirement. It affects your take-home pay but builds a higher future CPP benefit.</p>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section">
+      <div class="section-label">FAQ</div>
+      <h2>Frequently Asked Questions</h2>
+      <div id="faqList">
+        <!-- populated by JS -->
+      </div>
+    </section>
+
+    <!-- Ad unit -->
+    <div class="ad-unit">
+      <ins class="adsbygoogle" style="display:block;width:728px;height:90px;" data-ad-client="ca-pub-7744853829365165" data-ad-slot="auto" data-ad-format="horizontal"></ins>
+    </div>
+
+    <!-- RELATED CALCULATORS -->
+    <section class="section">
+      <div class="section-label">Related Tools</div>
+      <h2>Related Calculators</h2>
+      <div class="related-grid" id="relatedGrid">
+        <!-- populated by JS -->
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">🍁 Ontario Take Home Calc</div>
+        <p>Free, browser-based Ontario take-home pay estimation using 2026 tax rates. No data stored.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Pages</h4>
+        <a href="/">Calculator</a>
+        <a href="about.html">About</a>
+        <a href="faq.html">FAQ</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="disclaimer.html">Disclaimer</a>
+        <a href="terms.html">Terms of Use</a>
+        <a href="https://calc-hq.ca" target="_blank" rel="noopener">calc-hq.ca</a>
+      </div>
+      <div class="footer-col">
+        <h4>Network</h4>
+        <a href="mailto:partnerships@calc-hq.ca">partnerships@calc-hq.ca</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ontariotakehomecalc.ca — Estimates only. Not financial or tax advice.</span>
+      <span>Tax Year: 2026 | Rates: CRA &amp; ESDC</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/network.js"></script>
+<script src="js/config.js"></script>
+<script src="js/calculator.js"></script>
+<script>
+// ─── UI CONTROLLER ────────────────────────────────────────────────────────────
+
+function runCalculator() {
+  const gross = parseFloat(document.getElementById('grossIncome').value) || 0;
+  const freq  = document.getElementById('payFrequency').value;
+
+  if (gross <= 0) {
+    alert('Please enter a gross income greater than $0.');
+    return;
+  }
+  if (gross > 2000000) {
+    alert('Please enter an income under $2,000,000.');
+    return;
+  }
+
+  const r = calculateTakeHome(gross, freq);
+  displayResults(r);
+}
+
+function displayResults(r) {
+  document.getElementById('resultsPlaceholder').style.display = 'none';
+  document.getElementById('resultsOutput').style.display = 'block';
+
+  document.getElementById('r-annualTakeHome').textContent = fmt(r.annualTakeHome);
+  document.getElementById('r-annualLabel').textContent = 'Per Year (estimated)';
+  document.getElementById('r-effectiveRate').textContent = fmtPct(r.effectiveRate) + ' effective rate';
+
+  document.getElementById('r-gross').textContent = fmt(r.grossAnnual);
+  document.getElementById('r-federalTax').textContent = '−' + fmt(r.federalTax);
+  document.getElementById('r-ontarioTax').textContent = '−' + fmt(r.ontarioTax);
+  document.getElementById('r-ohp').textContent = '−' + fmt(r.ohp);
+  document.getElementById('r-cpp1').textContent = '−' + fmt(r.cpp1);
+  document.getElementById('r-cpp2').textContent = '−' + fmt(r.cpp2);
+  document.getElementById('r-ei').textContent = '−' + fmt(r.ei);
+  document.getElementById('r-totalDeductions').textContent = '−' + fmt(r.totalDeductions);
+  document.getElementById('r-takeHomeBottom').textContent = fmt(r.annualTakeHome);
+
+  // Show/hide CPP2 row
+  document.getElementById('r-cpp2row').style.display = r.cpp2 > 0 ? 'flex' : 'none';
+
+  // Period grid
+  const grid = document.getElementById('r-periodGrid');
+  const freqLabel = TAX_CONFIG.payFrequencies[document.getElementById('payFrequency').value].label;
+  grid.innerHTML = `
+    <div class="period-card highlight">
+      <div class="period-card-label">${freqLabel}</div>
+      <div class="period-card-amount">${fmt(r.perPeriodNet)}</div>
+      <div class="period-card-sub">per pay period</div>
+    </div>
+    <div class="period-card">
+      <div class="period-card-label">Monthly</div>
+      <div class="period-card-amount">${fmt(r.monthlyNet)}</div>
+      <div class="period-card-sub">per month</div>
+    </div>
+    <div class="period-card">
+      <div class="period-card-label">Annual</div>
+      <div class="period-card-amount">${fmt(r.annualTakeHome)}</div>
+      <div class="period-card-sub">per year</div>
+    </div>
+  `;
+
+  // Scroll to results
+  document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ─── EXAMPLE TABLE (uses config) ─────────────────────────────────────────────
+function buildExampleTable() {
+  const exGross = 80000;
+  const r = calculateTakeHome(exGross, 'biweekly');
+  const body = document.getElementById('exampleBody');
+
+  const cfg = TAX_CONFIG;
+  const federalBPA = calcFederalBPA(exGross);
+  const federalGrossTax = calcProgressiveTax(exGross, cfg.federal.brackets);
+  const federalCredit = federalBPA * cfg.federal.creditRate;
+  const ontarioGrossTax = calcProgressiveTax(exGross, cfg.ontario.brackets);
+  const ontarioCredit = cfg.ontario.bpa * cfg.ontario.creditRate;
+  const ontarioSurtax = calcOntarioSurtax(ontarioGrossTax);
+
+  body.innerHTML = `
+    <tr><td>Gross Annual Income</td><td>—</td><td>${fmt(exGross)}</td></tr>
+    <tr><td colspan="3" style="font-weight:700;background:#f5f5f0;padding:8px 16px;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.06em;color:#7a7a74">Federal Tax</td></tr>
+    <tr><td>Gross federal tax (14%–20.5% brackets)</td><td>${fmt(federalGrossTax)}</td><td></td></tr>
+    <tr><td>Less: Federal BPA credit ($${cfg.federal.bpa.toLocaleString()} × 14%)</td><td>−${fmt(federalCredit)}</td><td></td></tr>
+    <tr><td><strong>Federal Tax Owing</strong></td><td></td><td><strong>${fmt(r.federalTax)}</strong></td></tr>
+    <tr><td colspan="3" style="font-weight:700;background:#f5f5f0;padding:8px 16px;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.06em;color:#7a7a74">Ontario Tax</td></tr>
+    <tr><td>Basic Ontario tax (5.05%–9.15% brackets)</td><td>${fmt(ontarioGrossTax)}</td><td></td></tr>
+    <tr><td>Ontario surtax (20% on tax over $${cfg.ontario.surtax.threshold1.toLocaleString()})</td><td>${fmt(ontarioSurtax)}</td><td></td></tr>
+    <tr><td>Less: Ontario BPA credit ($${cfg.ontario.bpa.toLocaleString()} × 5.05%)</td><td>−${fmt(ontarioCredit)}</td><td></td></tr>
+    <tr><td><strong>Ontario Tax Owing</strong></td><td></td><td><strong>${fmt(r.ontarioTax)}</strong></td></tr>
+    <tr><td colspan="3" style="font-weight:700;background:#f5f5f0;padding:8px 16px;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.06em;color:#7a7a74">Payroll Deductions</td></tr>
+    <tr><td>Ontario Health Premium</td><td>Income $${exGross.toLocaleString()} → OHP tier</td><td>${fmt(r.ohp)}</td></tr>
+    <tr><td>CPP1 (5.95% × [$${cfg.cpp.ympe.toLocaleString()} − $${cfg.cpp.basicExemption.toLocaleString()}])</td><td>${fmt(r.cpp1)}</td><td></td></tr>
+    <tr><td>CPP2 (earnings under YMPE, not applicable)</td><td>$0.00</td><td></td></tr>
+    <tr><td>EI ($1.63 per $100, on $${Math.min(exGross, cfg.ei.mie).toLocaleString()})</td><td>${fmt(r.ei)}</td><td></td></tr>
+    <tr class="table-total"><td><strong>Total Deductions</strong></td><td></td><td><strong>−${fmt(r.totalDeductions)}</strong></td></tr>
+    <tr class="table-result"><td><strong>Estimated Take-Home (Annual)</strong></td><td></td><td><strong>${fmt(r.annualTakeHome)}</strong></td></tr>
+    <tr class="table-result"><td><strong>Bi-Weekly Take-Home</strong></td><td>÷ 26 pay periods</td><td><strong>${fmt(r.perPeriodNet)}</strong></td></tr>
+  `;
+}
+
+// ─── SCENARIOS (uses config) ─────────────────────────────────────────────────
+function buildScenarios() {
+  const incomes = [35000, 50000, 65000, 75000, 90000, 110000, 150000, 200000];
+  const grid = document.getElementById('scenariosGrid');
+  grid.innerHTML = '';
+
+  incomes.forEach(inc => {
+    const r = calculateTakeHome(inc, 'biweekly');
+    const card = document.createElement('div');
+    card.className = 'scenario-card';
+    card.innerHTML = `
+      <div class="scenario-title">${inc >= 100000 ? inc.toLocaleString() : inc.toLocaleString()} gross</div>
+      <div class="scenario-income">${fmt(inc)}</div>
+      <div class="scenario-net">≈ ${fmt(r.annualTakeHome)} / yr</div>
+      <div class="scenario-row">
+        <span>Bi-Weekly</span>
+        <span>${fmt(r.perPeriodNet)}</span>
+      </div>
+      <div class="scenario-row">
+        <span>Monthly</span>
+        <span>${fmt(r.monthlyNet)}</span>
+      </div>
+      <div class="scenario-row">
+        <span>Effective Rate</span>
+        <span>${fmtPct(r.effectiveRate)}</span>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ─── FAQ ─────────────────────────────────────────────────────────────────────
+const faqs = [
+  {
+    q: "How accurate is this calculator?",
+    a: "This calculator provides a close estimate for most Ontario employees with straightforward payroll situations. It uses 2026 CRA-published rates and applies the basic personal amount only. Results may differ from your actual payslip if you have RRSP deductions, additional TD1 claims, union dues, employer benefits, or multiple income sources."
+  },
+  {
+    q: `What year are these rates from?`,
+    a: `All rates, brackets, and thresholds in this calculator are for the ${TAX_CONFIG.taxYear} tax year, based on information published by the Canada Revenue Agency and Employment and Social Development Canada.`
+  },
+  {
+    q: "Why is my actual pay different from this estimate?",
+    a: "Your employer calculates payroll deductions per pay period using CRA payroll tables, which may produce slightly different results than an annualized estimate. Your TD1 claims (additional personal credits), employer benefit deductions, union dues, or pension plan contributions will also reduce your take-home pay beyond what this calculator shows."
+  },
+  {
+    q: "Does this calculator apply to self-employed people?",
+    a: "No. This calculator is designed for employees. Self-employed individuals pay both the employee and employer share of CPP (11.9% on pensionable earnings), do not have EI deducted unless they opt in, and have different tax filing obligations. A different tool is appropriate for self-employment income."
+  },
+  {
+    q: `What is the CPP2 contribution?`,
+    a: `CPP2 is the enhanced second tier of Canada Pension Plan contributions. For ${TAX_CONFIG.taxYear}, it applies to employment earnings between $${TAX_CONFIG.cpp.ympe.toLocaleString()} and $${TAX_CONFIG.cpp.yampe.toLocaleString()}, at a rate of ${TAX_CONFIG.cpp.rate2 * 100}%. The maximum CPP2 employee contribution is $${TAX_CONFIG.cpp.maxContribution2.toFixed(2)}. It builds a higher CPP retirement benefit.`
+  },
+  {
+    q: "What is the Ontario Health Premium?",
+    a: `The Ontario Health Premium is an annual charge collected through the provincial tax system. It applies to residents with taxable income over $20,000. The premium ranges from $0 to $${TAX_CONFIG.ohp[TAX_CONFIG.ohp.length - 1].calc().toString() === "0" ? 900 : 900}, depending on income. It is not a payroll deduction per period — it is settled at tax filing.`
+  },
+  {
+    q: "Does pay frequency affect how much I pay in taxes?",
+    a: "No. Your total annual deductions are the same regardless of how often you are paid. Pay frequency only affects how those annual deductions are spread across your paycheques. Weekly, bi-weekly, semi-monthly, and monthly pay all result in the same annual total."
+  },
+  {
+    q: "What does effective tax rate mean?",
+    a: "Your effective rate is the total of all your deductions (taxes + CPP + EI) divided by your gross income. It tells you what percentage of your gross pay you are not keeping. Your marginal rate is the rate that applies to your last dollar of income, which is always higher than your effective rate."
+  },
+  {
+    q: "How do I reduce my tax deductions?",
+    a: "The most common way to reduce income tax deductions is to contribute to an RRSP. RRSP contributions reduce your taxable income dollar-for-dollar, which can lower both federal and Ontario tax. Other non-refundable credits (childcare, medical, tuition) can also reduce your annual tax, though they are typically settled at tax filing rather than through payroll."
+  },
+  {
+    q: "Is this tool storing my data?",
+    a: "No. This calculator runs entirely in your browser. Your income and results are never sent to any server. No account is required. No data is saved or stored."
+  }
+];
+
+function buildFAQ() {
+  const list = document.getElementById('faqList');
+  list.innerHTML = '';
+  faqs.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'faq-item';
+    div.innerHTML = `
+      <div class="faq-q" onclick="toggleFAQ(this.parentElement)">${item.q}</div>
+      <div class="faq-a">${item.a}</div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function toggleFAQ(el) {
+  el.classList.toggle('open');
+}
+
+// ─── RELATED TOOLS (driven by network.js) ─────────────────────────────────────
+function buildRelatedTools() {
+  const grid = document.getElementById('relatedGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  if (typeof NETWORK_TOOLS === 'undefined') return;
+  const thisSite = 'ontariotakehomecalc.ca';
+  const tools = NETWORK_TOOLS.filter(t => t.live === true && !t.url.includes(thisSite));
+  if (tools.length === 0) {
+    grid.innerHTML = '<p style="color:var(--text-muted);font-size:0.9rem">No related tools available.</p>';
+    return;
+  }
+  tools.forEach(tool => {
+    const a = document.createElement('a');
+    a.className = 'related-card';
+    a.href = tool.url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.innerHTML = `
+      <div class="related-card-title">${tool.name}</div>
+      <div class="related-card-desc">${tool.desc}</div>
+    `;
+    grid.appendChild(a);
+  });
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const fy = document.getElementById('footerYear'); if (fy) fy.textContent = TAX_CONFIG.taxYear;
+  buildExampleTable();
+  buildScenarios();
+  buildFAQ();
+  buildRelatedTools();
+
+  // Auto-run on income input change
+  document.getElementById('grossIncome').addEventListener('keydown', e => {
+    if (e.key === 'Enter') runCalculator();
+  });
+  document.getElementById('payFrequency').addEventListener('change', () => {
+    const val = parseFloat(document.getElementById('grossIncome').value);
+    if (val > 0) runCalculator();
+  });
+});
+
+// Ads
+(adsbygoogle = window.adsbygoogle || []).push({});
+(adsbygoogle = window.adsbygoogle || []).push({});
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</body>
+</html>
