@@ -87,6 +87,16 @@
 
 </div>
 
+<!-- RELATED TOOLS (Ontario cluster — driven by network.js) -->
+<section class="related-tools-section">
+  <div class="page-body" style="padding-top:0;">
+    <h2 style="margin-top:0;">Related Ontario Calculators</h2>
+    <div class="related-grid" id="relatedGrid">
+      <!-- populated by network.js -->
+    </div>
+  </div>
+</section>
+
 <footer class="site-footer">
   <div class="container">
     <div class="footer-grid">
@@ -136,5 +146,23 @@ function handleContactSubmit(e) {
 </script>
 <script src="js/network.js"></script>
 <script src="js/ads.js"></script>
+<script>
+(function(){
+  var grid = document.getElementById('relatedGrid');
+  if (!grid || typeof NETWORK_TOOLS === 'undefined') return;
+  var thisSite = 'ontariotakehomecalc.ca';
+  var tools = NETWORK_TOOLS.filter(function(t){ return t.live === true && t.url.indexOf(thisSite) === -1; });
+  if (!tools.length) { grid.innerHTML = '<p style="color:#888;font-size:0.9rem">No related tools available.</p>'; return; }
+  tools.forEach(function(tool){
+    var a = document.createElement('a');
+    a.className = 'related-card';
+    a.href = tool.url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.innerHTML = '<div class="related-card-title">' + tool.name + '</div><div class="related-card-desc">' + tool.desc + '</div>';
+    grid.appendChild(a);
+  });
+})();
+</script>
 </body>
 </html>

@@ -759,6 +759,11 @@ select {
   .section h3 { margin-top: 16px; }
   .ad-unit { min-height: 0; margin: 16px auto; }
   .ad-unit ins { height: auto !important; min-height: 0; }
+  /* Mobile: support page horizontal breathing room */
+  .page-body { padding: 36px 20px; }
+  .page-hero { padding: 32px 0; }
+  .container { padding: 0 16px; }
+  .related-grid { grid-template-columns: 1fr; gap: 10px; }
 }
 @media (max-width: 480px) {
   .period-grid { grid-template-columns: 1fr; }
@@ -767,6 +772,11 @@ select {
   .section { margin-bottom: 24px; }
   .page-content { padding: 24px 0; }
   .faq-item { padding: 14px 0; }
+  /* Small phone: tighter page-body, consistent card padding */
+  .page-body { padding: 28px 16px; }
+  .calc-form-section, .calc-results-section { padding: 20px 16px; }
+  .related-card { padding: 14px 16px; }
+  .info-box { padding: 18px 16px; }
 }
 
 /* ─── ADS PLACEHOLDER ────────────────────────────────────────────────────────── */

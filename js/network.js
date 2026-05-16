@@ -11,15 +11,15 @@
 
 const NETWORK_TOOLS = [
   {
-    name: "CPP Calc",
-    desc: "Estimate your Canada Pension Plan contributions based on your earnings.",
-    url: "https://cppcalc.ca",
+    name: "Ontario Income Tax Calc",
+    desc: "Estimate your Ontario provincial and federal income tax for 2026 using current CRA brackets.",
+    url: "https://ontarioincometaxcalc.ca",
     live: true
   },
   {
-    name: "EI Calc",
-    desc: "Estimate your Employment Insurance premiums and maximum insurable earnings.",
-    url: "https://eicalc.ca",
+    name: "Ontario Raise Calc",
+    desc: "See exactly how a salary raise changes your Ontario take-home pay after all deductions.",
+    url: "https://ontarioraisecalc.ca",
     live: true
   },
   {
